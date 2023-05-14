@@ -6,7 +6,7 @@
 /*   By: absaid <absaid@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/04 13:31:36 by absaid            #+#    #+#             */
-/*   Updated: 2023/05/05 16:12:48 by absaid           ###   ########.fr       */
+/*   Updated: 2023/05/06 17:27:52 by absaid           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,7 @@
 #include<stdlib.h>
 #include<pthread.h>
 #include<stdbool.h>
+#include<sys/time.h>
 
 typedef struct s_data
 {
@@ -27,6 +28,8 @@ typedef struct s_data
 	int	tsleep;
 	int	maxeat;
 	bool flag;
+	pthread_mutex_t print;
+	pthread_mutex_t eat;
 	pthread_mutex_t *forks;
 } t_data;
 

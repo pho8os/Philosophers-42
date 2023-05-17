@@ -6,7 +6,7 @@
 /*   By: absaid <absaid@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/05 15:42:21 by absaid            #+#    #+#             */
-/*   Updated: 2023/05/05 16:53:07 by absaid           ###   ########.fr       */
+/*   Updated: 2023/05/17 09:45:47 by absaid           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,7 +30,7 @@ int ft_atoi(char *str)
 	}
 	while(str[i] && str[i] >= '0' && str[i] <= '9')
 	{
-		res += (res * 10) + (str[i] - 48);
+		res = res * 10 + str[i] - 48;
 		i++;
 		if(res > INT_MAX)
 			return(-1);

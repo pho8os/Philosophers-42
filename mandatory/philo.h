@@ -6,7 +6,7 @@
 /*   By: absaid <absaid@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/04 13:31:36 by absaid            #+#    #+#             */
-/*   Updated: 2023/05/15 18:37:47 by absaid           ###   ########.fr       */
+/*   Updated: 2023/05/17 10:41:22 by absaid           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,6 +30,7 @@ typedef struct s_data
 	int	maxeat;
 	bool flag;
 	pthread_mutex_t print;
+	pthread_mutex_t forflag;
 	pthread_mutex_t eat;
 	pthread_mutex_t *forks;
 } t_data;

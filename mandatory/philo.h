@@ -6,7 +6,7 @@
 /*   By: absaid <absaid@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/04 13:31:36 by absaid            #+#    #+#             */
-/*   Updated: 2023/05/17 10:41:22 by absaid           ###   ########.fr       */
+/*   Updated: 2023/05/18 20:08:52 by absaid           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,6 +43,7 @@ typedef struct s_ph
 	int		neat;
 	unsigned int	lasteat;
 } t_ph;
+
 int ft_atoi(char *str);
 void	*ft_routine(void *arg);
 void ft_mutexinit(t_data *data) ;

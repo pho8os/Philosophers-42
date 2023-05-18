@@ -6,7 +6,7 @@
 /*   By: absaid <absaid@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/04 13:31:27 by absaid            #+#    #+#             */
-/*   Updated: 2023/05/17 11:35:02 by absaid           ###   ########.fr       */
+/*   Updated: 2023/05/18 20:15:11 by absaid           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,18 +17,18 @@ void ft_mutexinit(t_data *data) // bool true or false
 	int i = -1;
 	size = data->nph;
 	data->forks = malloc(sizeof(pthread_mutex_t) * size);
-	while(++i <= size)
+	while(++i < size)
 		pthread_mutex_init(&data->forks[i], NULL); //learn about it and protection;	
 	pthread_mutex_init(&data->print, NULL);
 	pthread_mutex_init(&data->eat, NULL);
-	pthread_mutex_init(&data->forflag, NULL);
+	// pthread_mutex_init(&data->forflag, NULL);
 }
 void ft_filldata(t_data *data, char **av)
 {
 	data->nph = ft_atoi(av[0]);
 	data->tdie = ft_atoi(av[1]);
 	data->teat = ft_atoi(av[2]);
-	printf("%d nph \n",data->nph);
+	// printf("%d nph \n",data->nph);
 	data->tsleep = ft_atoi(av[3]);
 	(av[4]) && (data->maxeat = ft_atoi(av[4]));
 	(!av[4]) && (data->maxeat = -1);
@@ -98,9 +98,9 @@ void checkdeath(t_ph **philos)
 			pthread_mutex_lock(&data->eat);
 			if(ft_current() - philos[i]->lasteat > (unsigned int)data->tdie)
 			{
-				printlock(philos[i], "died");
-				// data->flag = false;
 				pthread_mutex_lock(&data->print);
+				printf(" died\n");
+				// data->flag = false;
 				return ;
 			}
 			pthread_mutex_unlock(&data->eat);
@@ -123,12 +123,13 @@ void ft_thread(t_ph **philos)
 	while(++i < data->nph)
 	{
 		philos[i]->lasteat = ft_current();
-		if(pthread_create(&philos[i]->n, NULL, ft_routine, philos[i]))
-			return ;//check true or false; 
+		pthread_create(&philos[i]->n, NULL, ft_routine, philos[i]);
+		pthread_detach(philos[i]->n);
+		//check true or false;
+			// return ;//check true or false; 
 	}
-	i = -1;
-	while(++i < data->nph)
-		pthread_detach(philos[i]->n);//check true or false;
+	// i = -1;
+	// while(++i <= data->nph)
 	checkdeath(philos);
 	// i = -1;
 	// while(++i < data->nph)
@@ -155,10 +156,9 @@ bool ft_sleep(t_ph *philo, unsigned int timetodo)
 
 void printlock(t_ph *philo, char *str)
 {
-	
 	pthread_mutex_lock(&philo->data->print);
 	printf("%d ", ft_current() - philo->data->start);
-	printf("%d %s\n", philo->id + 1, str);
+	printf("%d %s\n", (philo->id) + 1, str);
 	pthread_mutex_unlock(&philo->data->print);
 }
 
@@ -176,9 +176,11 @@ bool eating(t_ph *philo)
 	printlock(philo, "is eating");
 	if(!ft_sleep(philo, data->teat))
 		return (false);
-	pthread_mutex_unlock(&data->forks[(philo->id + 1) % data->nph]);
+	// printf("address , %p\n", &data->forks[philo->id]);
 	pthread_mutex_unlock(&data->forks[philo->id]);
+	pthread_mutex_unlock(&data->forks[(philo->id + 1) % data->nph]);
 	pthread_mutex_lock(&data->eat);
+	// usleep(50);
 	philo->lasteat = ft_current();
 	philo->neat++;
 	pthread_mutex_unlock(&data->eat);
@@ -192,13 +194,11 @@ void	*ft_routine(void *arg)
 	int i;
 	
 	i = -1;
-	
 	data = philo->data;
 	if(philo->id % 2)
-		while(++i <= 500)
-			usleep(1);
+		ft_sleep(philo, 50);
 	
-	while(1)
+	while(data->flag)
 	{
 		if(!eating(philo))
 			return(NULL) ;
@@ -215,11 +215,12 @@ int main(int ac, char **av)
 {
 	if(ac < 5 || ac > 6)
 		return(puts("number of args"), 1);
-	t_data data;
-	ft_filldata(&data, av + 1);
-	if(!checkdata(&data, av + 1))
+	t_data *data;
+	data = malloc(sizeof(t_data));
+	ft_filldata(data, av + 1);
+	if(!checkdata(data, av + 1))
 		return (puts("unvalid args"), 1);
 
-	t_ph **philos = ft_philo_create(&data);
+	t_ph **philos = ft_philo_create(data);
 	ft_thread(philos);
 }

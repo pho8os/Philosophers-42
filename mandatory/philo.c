@@ -6,49 +6,47 @@
 /*   By: absaid <absaid@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/04 13:31:27 by absaid            #+#    #+#             */
-/*   Updated: 2023/05/18 20:15:11 by absaid           ###   ########.fr       */
+/*   Updated: 2023/05/19 02:23:57 by absaid           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include"philo.h"
-void ft_mutexinit(t_data *data) // bool true or false
+void ft_mutexinit(t_data *data) 
 {
 	int size;
 	int i = -1;
 	size = data->nph;
 	data->forks = malloc(sizeof(pthread_mutex_t) * size);
 	while(++i < size)
-		pthread_mutex_init(&data->forks[i], NULL); //learn about it and protection;	
+		pthread_mutex_init(&data->forks[i], NULL); 
 	pthread_mutex_init(&data->print, NULL);
 	pthread_mutex_init(&data->eat, NULL);
-	// pthread_mutex_init(&data->forflag, NULL);
+
 }
-void ft_filldata(t_data *data, char **av)
+void	ft_filldata(t_data *data, char **av)
 {
 	data->nph = ft_atoi(av[0]);
 	data->tdie = ft_atoi(av[1]);
 	data->teat = ft_atoi(av[2]);
-	// printf("%d nph \n",data->nph);
+
 	data->tsleep = ft_atoi(av[3]);
 	(av[4]) && (data->maxeat = ft_atoi(av[4]));
 	(!av[4]) && (data->maxeat = -1);
 	data->flag = true;
 	data->start = ft_current();
-	ft_mutexinit(data);
 }
-t_ph **ft_philo_create(t_data *data) //bool return true or false
+t_ph *ft_philo_create(t_data *data)
 {
-	t_ph **philos;
+	t_ph *philos;
 	
 	int size = data->nph;
-	philos = malloc(sizeof(t_ph *) * size);
+	philos = malloc(sizeof(t_ph ) * size);
 	int  i = -1; 
 	while(++i < size)
 	{
-		philos[i] = malloc(sizeof(t_ph));
-		philos[i]->id = i ;
-		philos[i]->data = data;
-		philos[i]->neat = 0;
+		philos[i].id = i ;
+		philos[i].data = data;
+		philos[i].neat = 0;
 	}
 	return(philos);
 }
@@ -67,15 +65,15 @@ unsigned int ft_current()
 	return((time.tv_usec / 1000) + (time.tv_sec * 1000));
 }
 
-bool checkeaiting(t_ph **philos)
+bool checkeaiting(t_ph *philos)
 {
 	t_data *data;
 	int i;
 
-	data = philos[0]->data;
+	data = philos[0].data;
 	i = 0;
 	pthread_mutex_lock(&data->eat);
-	while(i < data->nph && philos[i]->neat >= data->maxeat && data->maxeat != -1)
+	while(i < data->nph && philos[i].neat >= data->maxeat && data->maxeat != -1)
 		i++;
 	pthread_mutex_unlock(&data->eat);
 	if(i == data->nph)
@@ -83,12 +81,12 @@ bool checkeaiting(t_ph **philos)
 	return(true);
 }
 
-void checkdeath(t_ph **philos)
+void checkdeath(t_ph *philos)
 {
 	t_data *data;
 	int i;
 	
-	data = philos[0]->data;
+	data = philos[0].data;
 
 	while(1)
 	{
@@ -96,45 +94,35 @@ void checkdeath(t_ph **philos)
 		while(++i < data->nph)
 		{
 			pthread_mutex_lock(&data->eat);
-			if(ft_current() - philos[i]->lasteat > (unsigned int)data->tdie)
+			if(ft_current() - philos[i].lasteat > (unsigned int)data->tdie)
 			{
 				pthread_mutex_lock(&data->print);
-				printf(" died\n");
-				// data->flag = false;
+				printf("%d %d died\n", ft_current() - data->start, philos[i].id + 1);
+				data->flag = false;
 				return ;
 			}
 			pthread_mutex_unlock(&data->eat);
-			usleep(50);
+			ft_sleep(philos,1);
 		}
 		if(!checkeaiting(philos))
-			{
-				pthread_mutex_lock(&data->print);
-				return ;
-			}
+			return(pthread_mutex_lock(&data->print), (void)0);
 	}
 }
 
-void ft_thread(t_ph **philos)
+void ft_thread(t_ph *philos)
 {
 	t_data *data;
 	
 	int i = -1;
-	data = philos[0]->data;
+	data = philos[0].data;
 	while(++i < data->nph)
 	{
-		philos[i]->lasteat = ft_current();
-		pthread_create(&philos[i]->n, NULL, ft_routine, philos[i]);
-		pthread_detach(philos[i]->n);
-		//check true or false;
-			// return ;//check true or false; 
+		philos[i].lasteat = ft_current();
+		pthread_create(&philos[i].n, NULL, ft_routine, &philos[i]);
+		pthread_detach(philos[i].n);
 	}
-	// i = -1;
-	// while(++i <= data->nph)
+
 	checkdeath(philos);
-	// i = -1;
-	// while(++i < data->nph)
-	// 	pthread_mutex_destroy(&data->forks[i]);
-	// free_m3ks(philos);
 }
 
 bool ft_sleep(t_ph *philo, unsigned int timetodo)
@@ -169,18 +157,16 @@ bool eating(t_ph *philo)
 	data = philo->data;
 	pthread_mutex_lock(&data->forks[philo->id]);
 	printlock(philo, "has taken a fork");
-	if(data->nph == 1)
-		return(ft_sleep(philo, data->tdie), false);
+	// if(data->nph == 1)
+	// 	return(ft_sleep(philo, data->tdie), false);
 	pthread_mutex_lock(&data->forks[(philo->id + 1) % data->nph]);
 	printlock(philo, "has taken a fork");
 	printlock(philo, "is eating");
 	if(!ft_sleep(philo, data->teat))
 		return (false);
-	// printf("address , %p\n", &data->forks[philo->id]);
 	pthread_mutex_unlock(&data->forks[philo->id]);
 	pthread_mutex_unlock(&data->forks[(philo->id + 1) % data->nph]);
 	pthread_mutex_lock(&data->eat);
-	// usleep(50);
 	philo->lasteat = ft_current();
 	philo->neat++;
 	pthread_mutex_unlock(&data->eat);
@@ -195,9 +181,7 @@ void	*ft_routine(void *arg)
 	
 	i = -1;
 	data = philo->data;
-	if(philo->id % 2)
-		ft_sleep(philo, 50);
-	
+	(philo->id % 2) && (ft_sleep(philo, 50), 0);
 	while(data->flag)
 	{
 		if(!eating(philo))
@@ -206,21 +190,32 @@ void	*ft_routine(void *arg)
 		if(!ft_sleep(philo, data->tsleep))
 			return(NULL);
 		printlock(philo, "is thinking");
-		// pthread_mutex_lock(&data->print);
 	}
 	return(NULL);
+}
+void ft_lik_wli_3lik_wndiro_bin_rjlik(void)
+{
+	system("leaks philo");
 }
 
 int main(int ac, char **av)
 {
+	atexit(ft_lik_wli_3lik_wndiro_bin_rjlik);
 	if(ac < 5 || ac > 6)
 		return(puts("number of args"), 1);
 	t_data *data;
 	data = malloc(sizeof(t_data));
 	ft_filldata(data, av + 1);
 	if(!checkdata(data, av + 1))
-		return (puts("unvalid args"), 1);
+		return (free(data), puts("unvalid args"), 1);
+	ft_mutexinit(data);
 
-	t_ph **philos = ft_philo_create(data);
+	t_ph *philos = ft_philo_create(data);
 	ft_thread(philos);
+	if(data->nph == 1)
+	{
+		free(philos);
+		free(data->forks);
+		free(data);
+	}
 }

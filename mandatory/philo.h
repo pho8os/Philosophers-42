@@ -6,7 +6,7 @@
 /*   By: absaid <absaid@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/04 13:31:36 by absaid            #+#    #+#             */
-/*   Updated: 2023/05/18 20:08:52 by absaid           ###   ########.fr       */
+/*   Updated: 2023/05/19 01:15:32 by absaid           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,7 +30,6 @@ typedef struct s_data
 	int	maxeat;
 	bool flag;
 	pthread_mutex_t print;
-	pthread_mutex_t forflag;
 	pthread_mutex_t eat;
 	pthread_mutex_t *forks;
 } t_data;
@@ -48,9 +47,9 @@ int ft_atoi(char *str);
 void	*ft_routine(void *arg);
 void ft_mutexinit(t_data *data) ;
 void ft_filldata(t_data *data, char **av);
-t_ph **ft_philo_create(t_data *data);
+t_ph *ft_philo_create(t_data *data);
 bool checkdata(t_data *data, char **av);
-void ft_thread(t_ph **philos);
+void ft_thread(t_ph *philos);
 unsigned int ft_current();
 bool ft_sleep(t_ph *philo, unsigned int timetodo);
 void printlock(t_ph *philo, char *str);

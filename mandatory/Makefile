@@ -2,8 +2,8 @@ NAME = philo
 
 CC = cc
 
-CFLAGS = -Wall -Wextra -Werror  -g
-SRCS = ft_atoi.c philo.c \
+CFLAGS = -Wall -Wextra -Werror  -g -fsanitize=thread
+SRCS = ft_atoi.c philo.c philo_utils.c\
 
 OBJS = $(SRCS:.c=.o)
 
